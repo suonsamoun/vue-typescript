@@ -30,7 +30,10 @@
         </div>
       </form>
       <h5 class="text-left text-red-600" v-show="isRequired">Please enter an item!</h5>
-      <h5 class="text-left text-green-500 transition ease-in-out delay-150" v-show="isSuccess">Item successfully added!</h5>
+      <h5
+        class="text-left text-green-500 transition ease-in-out delay-150"
+        v-show="isSuccess"
+      >Item successfully added!</h5>
       <div
         v-for="(item, index) in items"
         :key="index"
@@ -53,28 +56,36 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { TodoItem, ErrorClasses } from "../interfaces";
 
 export default defineComponent({
   name: "Home",
   data() {
     return {
-      text: "",
+      text: '',
       loading: false,
       isRequired: false,
       isSuccess: false,
       validClasses: "border-b-2 border-green-500",
       items: [
         { id: 1, text: "Learn Vue", completed: true },
-        { id: 2, text: "Learn TypeScript", completed: false },
+        { id: 2, text: "Learn TypeScript", completed: true },
         { id: 3, text: "Learn Vuex", completed: false },
         { id: 4, text: "Learn Vue Router", completed: true },
         { id: 3, text: "Practice", completed: false },
       ]
+    } as {
+      text: string;
+      loading: boolean;
+      isRequired: boolean;
+      isSuccess: boolean;
+      validClasses: string;
+      items: TodoItem[];
     };
   },
   methods: {
 
-    addNewItem() {
+    addNewItem(): void {
 
       if (this.text === '') {
         this.isRequired = true;
@@ -107,24 +118,25 @@ export default defineComponent({
 
     },
 
-    toggleCompleted(item) {
+    toggleCompleted(item: TodoItem): void {
       item.completed = !item.completed;
       this.completedCount = this.items.filter(item => item.completed).length;
       this.totalCount = this.items.length;
     },
 
   },
+
   computed: {
 
-    completedCount() {
+    completedCount(): number {
       return this.items.filter(item => item.completed).length;
     },
 
-    totalCount() {
+    totalCount(): number {
       return this.items.length;
     },
 
-    errorClasses() {
+    errorClasses(): ErrorClasses {
       return {
         'border-b-2': this.isRequired,
         "border-red-500": this.isRequired,
@@ -134,10 +146,10 @@ export default defineComponent({
   },
 
   // watch: {
-    // text(val) {
-    //   console.log(val);
-    //   if (val !== '') this.isRequired = false;
-    // }
+  //   text(val): void {
+  //     console.log(val);
+  //     if (val !== '') this.isRequired = false;
+  //   }
   // }
 });
 
