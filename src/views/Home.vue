@@ -120,8 +120,6 @@ export default defineComponent({
 
     toggleCompleted(item: TodoItem): void {
       item.completed = !item.completed;
-      this.completedCount = this.items.filter(item => item.completed).length;
-      this.totalCount = this.items.length;
     },
 
   },
