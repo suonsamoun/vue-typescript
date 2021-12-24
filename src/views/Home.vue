@@ -49,6 +49,12 @@
             :class="item.completed ? 'line-through' : ''"
           >{{ item.text }}</h4>
         </div>
+        <div class="flex-shrink-0 m-1">
+          <button class="mx-3 text-green-500" @click="editItem(index)">Edit</button>
+        </div>
+        <div class="flex-shrink-0 m-1">
+          <button class="text-red-500" @click="removeItem(index)">Delete</button>
+        </div>
       </div>
     </div>
   </div>
@@ -116,6 +122,14 @@ export default defineComponent({
         this.isSuccess = false;
       }, 5000);
 
+    },
+
+    removeItem(index: number): void {
+      this.items.splice(index, 1);
+    },
+
+    editItem(index: number): void {
+      this.items[index].text = prompt("Edit item", this.items[index].text);
     },
 
     toggleCompleted(item: TodoItem): void {
