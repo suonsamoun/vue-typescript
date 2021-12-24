@@ -34,7 +34,12 @@
 				class="text-left text-green-500 transition ease-in-out delay-150"
 				v-show="isSuccess"
 			>Item successfully added!</h5>
-			<TodoList :items="items" :toggleClick="toggleCompleted" />
+			<TodoList 
+				:items="items" 
+				:editItem="editItem"
+				:removeItem="removeItem"
+				:toggleCompleted="toggleCompleted" 
+			/>
 		</div>
 	</div>
 </template>
@@ -42,7 +47,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { TodoItem, ErrorClasses } from "../interfaces";
-import { TodoList } from "../components";
+import { TodoItem, TodoList } from "../components";
 
 export default defineComponent({
 	name: "Home",
@@ -61,7 +66,7 @@ export default defineComponent({
 				{ id: 2, text: "Learn TypeScript", completed: true },
 				{ id: 3, text: "Learn Vuex", completed: false },
 				{ id: 4, text: "Learn Vue Router", completed: true },
-				{ id: 3, text: "Practice", completed: false },
+				{ id: 5, text: "Practice", completed: false },
 			]
 		} as {
 			text: string;
@@ -107,12 +112,17 @@ export default defineComponent({
 
 		},
 
-		removeItem(index: number): void {
-			this.items.splice(index, 1);
+		removeItem(id: number): void {
+			this.items = this.items.filter(item => item.id !== id);
 		},
 
-		editItem(index: number): void {
-			this.items[index].text = prompt("Edit item", this.items[index].text);
+		editItem(item: TodoItem): void {
+			this.items = this.items.map(todo => {
+				if (todo.id === item.id) {
+					todo.text = prompt("Edit item", todo.text);
+				}
+				return todo;
+			});
 		},
 
 		toggleCompleted(item: TodoItem): void {

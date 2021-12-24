@@ -1,5 +1,13 @@
 <template>
-    <TodoItem v-for="item in items" :key="item" v-bind="item" :toggleCompleted="toggleClick(items)" />
+    <TodoItem 
+        v-for="item in items" 
+        :key="item" 
+        v-bind="item" 
+        :item="item" 
+        :editItem="editItem"
+        :removeItem="removeItem" 
+        :toggleCompleted="toggleCompleted" 
+    />
 </template>
 
 <script lang="ts">
@@ -10,7 +18,9 @@ export default defineComponent({
     name: "TodoList",
     props: {
         items: { type: Object, required: true },
-        toggleClick: { type: Function, required: true },
+        editItem: { type: Function, required: true },
+        removeItem: { type: Function, required: true },
+        toggleCompleted: { type: Function, required: true },
     },
     components: {
         TodoItem,
