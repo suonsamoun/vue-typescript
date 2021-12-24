@@ -10,7 +10,7 @@
       <form class="my-4" @submit.prevent="addNewItem">
         <div
           class="mx-auto flex items-center bg-white p-2 rounded-md shadow-md"
-          :class="errorClasses"
+          :class="[text !== '' ? validClasses : '', errorClasses]"
         >
           <div class="flex-grow m-1 ml-3">
             <input
@@ -18,6 +18,7 @@
               class="w-full focus:outline-none"
               type="text"
               placeholder="Enter new item"
+              @keyup="isRequired = text !== '' ? false : true"
             />
           </div>
           <div class="flex-shrink-0">
@@ -29,6 +30,7 @@
         </div>
       </form>
       <h5 class="text-left text-red-600" v-show="isRequired">Please enter an item!</h5>
+      <h5 class="text-left text-green-500 transition ease-in-out delay-150" v-show="isSuccess">Item successfully added!</h5>
       <div
         v-for="(item, index) in items"
         :key="index"
@@ -59,6 +61,8 @@ export default defineComponent({
       text: "",
       loading: false,
       isRequired: false,
+      isSuccess: false,
+      validClasses: "border-b-2 border-green-500",
       items: [
         { id: 1, text: "Learn Vue", completed: true },
         { id: 2, text: "Learn TypeScript", completed: false },
@@ -69,52 +73,72 @@ export default defineComponent({
     };
   },
   methods: {
+
     addNewItem() {
 
       if (this.text === '') {
         this.isRequired = true;
+        this.isSuccess = false;
         return;
       }
 
       this.loading = true;
-      this.items.push({
-        id: this.items.length + 1,
-        text: this.text,
-        completed: false,
-      });
+
+      this.items = [
+        {
+          id: this.items.length + 1,
+          text: this.text,
+          completed: false,
+        },
+        ...this.items
+      ];
 
       this.text = "";
+      this.isSuccess = true;
       this.isRequired = false;
+
       setTimeout(() => {
         this.loading = false;
-      }, 100);
+      }, 500);
+
+      setTimeout(() => {
+        this.isSuccess = false;
+      }, 5000);
+
     },
+
     toggleCompleted(item) {
       item.completed = !item.completed;
       this.completedCount = this.items.filter(item => item.completed).length;
       this.totalCount = this.items.length;
     },
+
   },
   computed: {
+
     completedCount() {
       return this.items.filter(item => item.completed).length;
     },
+
     totalCount() {
       return this.items.length;
     },
+
     errorClasses() {
       return {
-        border: this.isRequired,
+        'border-b-2': this.isRequired,
         "border-red-500": this.isRequired,
       };
     },
+
   },
-  watch: {
-    text(val) {
-      console.log(val);
-      if (val !== '') this.isRequired = false;
-    }
-  }
+
+  // watch: {
+    // text(val) {
+    //   console.log(val);
+    //   if (val !== '') this.isRequired = false;
+    // }
+  // }
 });
 
 </script>
