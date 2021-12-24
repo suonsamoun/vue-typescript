@@ -8,7 +8,10 @@
     <div v-else>
       <p class="text-center mt-2">{{ completedCount }} of {{ totalCount }} completed.</p>
       <form class="my-4" @submit.prevent="addNewItem">
-        <div class="mx-auto flex items-center bg-white p-2 rounded-md shadow-md">
+        <div
+          class="mx-auto flex items-center bg-white p-2 rounded-md shadow-md"
+          :class="errorClasses"
+        >
           <div class="flex-grow m-1 ml-3">
             <input
               v-model="text"
@@ -25,6 +28,7 @@
           </div>
         </div>
       </form>
+      <h5 class="text-left text-red-600" v-show="isRequired">Please enter an item!</h5>
       <div
         v-for="(item, index) in items"
         :key="index"
@@ -35,7 +39,10 @@
           <input type="checkbox" :checked="item.completed" @change="toggleCompleted(item)" />
         </div>
         <div class="ml-6">
-          <h4 class="text-xl text-gray-900 leading-tight" :class="item.completed ? 'line-through' : ''">{{ item.text }}</h4>
+          <h4
+            class="text-xl text-gray-900 leading-tight"
+            :class="item.completed ? 'line-through' : ''"
+          >{{ item.text }}</h4>
         </div>
       </div>
     </div>
@@ -51,25 +58,33 @@ export default defineComponent({
     return {
       text: "",
       loading: false,
+      isRequired: false,
       items: [
         { id: 1, text: "Learn Vue", completed: true },
         { id: 2, text: "Learn TypeScript", completed: false },
         { id: 3, text: "Learn Vuex", completed: false },
-        { id: 4, text: "Learn Vue Router", completed: false },
+        { id: 4, text: "Learn Vue Router", completed: true },
         { id: 3, text: "Practice", completed: false },
       ]
     };
   },
   methods: {
     addNewItem() {
-      if (this.text === '') return;
+
+      if (this.text === '') {
+        this.isRequired = true;
+        return;
+      }
+
       this.loading = true;
       this.items.push({
         id: this.items.length + 1,
         text: this.text,
         completed: false,
       });
+
       this.text = "";
+      this.isRequired = false;
       setTimeout(() => {
         this.loading = false;
       }, 100);
@@ -87,7 +102,19 @@ export default defineComponent({
     totalCount() {
       return this.items.length;
     },
+    errorClasses() {
+      return {
+        border: this.isRequired,
+        "border-red-500": this.isRequired,
+      };
+    },
   },
+  watch: {
+    text(val) {
+      console.log(val);
+      if (val !== '') this.isRequired = false;
+    }
+  }
 });
 
 </script>
