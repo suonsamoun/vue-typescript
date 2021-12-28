@@ -1,7 +1,7 @@
 <template>
-	<div class="container mx-auto mt-4">
-		<h1 class="text-3xl text-center p-2 font-bold">Learn Vue with TypeScript (TodoApp)</h1>
-
+	<div v-show="showWelcomeMsg" class="bg-green-900 text-white p-2 rounded-md">Welcome to the Todo App!</div>
+	<div class="container max-w-md mx-auto mt-4 shadow-lg p-3">
+		<h1 class="text-3xl text-center p-2 font-bold">Todo App</h1>
 		<div v-if="loading">
 			<h3 class="text-center mt-4">Loading...</h3>
 		</div>
@@ -9,8 +9,8 @@
 			<p class="text-center mt-2">{{ completedCount }} of {{ totalCount }} completed.</p>
 			<form class="my-4" @submit.prevent="addNewItem">
 				<div
-					class="mx-auto flex items-center bg-white p-2 rounded-md shadow-md"
-					:class="[text !== '' ? validClasses : '', errorClasses]"
+					class="mx-auto flex items-center bg-white p-2 rounded-md border-2"
+					:class="[isEmpty ? '' : 'border-green-500', isRequired ? 'border-red-500' : '']"
 				>
 					<div class="flex-grow m-1 ml-3">
 						<input
@@ -18,27 +18,30 @@
 							class="w-full focus:outline-none"
 							type="text"
 							placeholder="Enter new item"
-							@keyup="isRequired = text !== '' ? false : true"
+							@keyup="validateInput"
 						/>
 					</div>
 					<div class="flex-shrink-0">
 						<button
 							type="submit"
-							class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-3 rounded"
+							class="text-white font-bold py-2 px-3 rounded"
+							:class="isEmpty ? 'bg-gray-300' : 'bg-green-500 hover:bg-green-700'"
+							:disabled="isEmpty"
 						>Add</button>
 					</div>
 				</div>
 			</form>
-			<h5 class="text-left text-red-600" v-show="isRequired">Please enter an item!</h5>
+			<h5 class="text-left text-red-600" v-show="isRequired && !isDuplicated">Please enter an item!</h5>
+			<h5 class="text-left text-yellow-600" v-show="isDuplicated">Item {{ text }} already exists!</h5>
 			<h5
 				class="text-left text-green-500 transition ease-in-out delay-150"
 				v-show="isSuccess"
 			>Item successfully added!</h5>
-			<TodoList 
-				:items="items" 
+			<TodoList
+				:items="items"
 				:editItem="editItem"
 				:removeItem="removeItem"
-				:toggleCompleted="toggleCompleted" 
+				:toggleCompleted="toggleCompleted"
 			/>
 		</div>
 	</div>
@@ -46,8 +49,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { TodoItem, ErrorClasses } from "../interfaces";
-import { TodoItem, TodoList } from "../components";
+import { TodoItem } from "../interfaces";
+import { TodoList } from "../components";
 
 export default defineComponent({
 	name: "Home",
@@ -58,13 +61,14 @@ export default defineComponent({
 		return {
 			text: '',
 			loading: false,
+			showWelcomeMsg: false,
 			isRequired: false,
 			isSuccess: false,
-			validClasses: "border-b-2 border-green-500",
+			isDuplicated: false,
 			items: [
-				{ id: 1, text: "Learn Vue", completed: true },
-				{ id: 2, text: "Learn TypeScript", completed: true },
-				{ id: 3, text: "Learn Vuex", completed: false },
+				{ id: 1, text: "Learn Vue", completed: false },
+				{ id: 2, text: "Learn TypeScript", completed: false },
+				{ id: 3, text: "Learn Vuex", completed: true },
 				{ id: 4, text: "Learn Vue Router", completed: true },
 				{ id: 5, text: "Practice", completed: false },
 			]
@@ -73,22 +77,25 @@ export default defineComponent({
 			loading: boolean;
 			isRequired: boolean;
 			isSuccess: boolean;
-			validClasses: string;
+			isDuplicated: boolean;
+			showWelcomeMsg: boolean;
 			items: TodoItem[];
 		};
 	},
 	methods: {
 
-		addNewItem(): void {
+		validateInput(): boolean {
+			return this.isRequired = this.isEmpty;
+		},
 
-			if (this.text === '') {
+		addNewItem(): void {
+			if (this.isEmpty) {
 				this.isRequired = true;
 				this.isSuccess = false;
 				return;
 			}
 
 			this.loading = true;
-
 			this.items = [
 				{
 					id: this.items.length + 1,
@@ -98,18 +105,17 @@ export default defineComponent({
 				...this.items
 			];
 
-			this.text = "";
 			this.isSuccess = true;
 			this.isRequired = false;
+			this.text = "";
 
 			setTimeout(() => {
 				this.loading = false;
-			}, 500);
+			}, 100);
 
 			setTimeout(() => {
 				this.isSuccess = false;
-			}, 5000);
-
+			}, 3000);
 		},
 
 		removeItem(id: number): void {
@@ -133,29 +139,37 @@ export default defineComponent({
 
 	computed: {
 
+		isEmpty(): boolean {
+			return this.text === '' || this.isDuplicated;
+		},
+
 		completedCount(): number {
 			return this.items.filter(item => item.completed).length;
 		},
 
 		totalCount(): number {
 			return this.items.length;
-		},
-
-		errorClasses(): ErrorClasses {
-			return {
-				'border-b-2': this.isRequired,
-				"border-red-500": this.isRequired,
-			};
-		},
+		}
 
 	},
 
-	// watch: {
-	//   text(val): void {
-	//     console.log(val);
-	//     if (val !== '') this.isRequired = false;
-	//   }
-	// }
+	created() {
+		this.showWelcomeMsg = true;
+		setTimeout(() => {
+			this.showWelcomeMsg = false;
+		}, 1000);
+	},
+
+	watch: {
+		text(newValue: string): void {
+			const duplicatedItem = this.items.find(item => item.text.toLowerCase() === newValue.toLowerCase());
+			if (duplicatedItem) {
+				this.isDuplicated = true;
+			} else {
+				this.isDuplicated = false;
+			}
+		}
+	}
 });
 
 </script>
