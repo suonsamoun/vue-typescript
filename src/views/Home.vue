@@ -1,5 +1,8 @@
 <template>
-	<div v-show="showWelcomeMsg" class="bg-green-900 text-white p-2 rounded-md">Welcome to the Todo App!</div>
+	<div
+		v-show="showWelcomeMsg"
+		class="bg-green-900 text-white p-2 rounded-md"
+	>Welcome to the Todo App!</div>
 	<div class="container max-w-md mx-auto mt-4 shadow-lg p-3">
 		<h1 class="text-3xl text-center p-2 font-bold">Todo App</h1>
 		<div v-if="loading">
@@ -37,20 +40,17 @@
 				class="text-left text-green-500 transition ease-in-out delay-150"
 				v-show="isSuccess"
 			>Item successfully added!</h5>
-			<TodoList
-				:items="items"
-				:editItem="editItem"
-				:removeItem="removeItem"
-				:toggleCompleted="toggleCompleted"
-			/>
+			<TodoList />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { TodoItem } from "../interfaces";
+import { Todo } from "../interfaces";
 import { TodoList } from "../components";
+import { ActionTypes, sleep } from "../store/modules/todo/actions";
+import { MutationTypes } from "../store/modules/todo/mutations";
 
 export default defineComponent({
 	name: "Home",
@@ -60,109 +60,86 @@ export default defineComponent({
 	data() {
 		return {
 			text: '',
-			loading: false,
 			showWelcomeMsg: false,
 			isRequired: false,
 			isSuccess: false,
 			isDuplicated: false,
-			items: [
-				{ id: 1, text: "Learn Vue", completed: false },
-				{ id: 2, text: "Learn TypeScript", completed: false },
-				{ id: 3, text: "Learn Vuex", completed: true },
-				{ id: 4, text: "Learn Vue Router", completed: true },
-				{ id: 5, text: "Practice", completed: false },
-			]
 		} as {
 			text: string;
-			loading: boolean;
 			isRequired: boolean;
 			isSuccess: boolean;
 			isDuplicated: boolean;
 			showWelcomeMsg: boolean;
-			items: TodoItem[];
 		};
 	},
 	methods: {
-
 		validateInput(): boolean {
 			return this.isRequired = this.isEmpty;
 		},
 
-		addNewItem(): void {
+		async addNewItem(): Promise<void> {
+
 			if (this.isEmpty) {
 				this.isRequired = true;
 				this.isSuccess = false;
 				return;
 			}
 
-			this.loading = true;
-			this.items = [
-				{
-					id: this.items.length + 1,
-					text: this.text,
-					completed: false,
-				},
-				...this.items
-			];
+			const item: Todo = {
+				id: this.$store.state.todo.items.length + 1,
+				text: this.text,
+				completed: false,
+			};
+		
+			this.$store.commit(MutationTypes.SET_LOADING, true);
+			this.$store.commit(MutationTypes.CREATE_ITEM, item);
 
 			this.isSuccess = true;
 			this.isRequired = false;
 			this.text = "";
 
-			setTimeout(() => {
-				this.loading = false;
-			}, 100);
+			await sleep(100);
+			this.$store.commit(MutationTypes.SET_LOADING, false);
 
-			setTimeout(() => {
-				this.isSuccess = false;
-			}, 3000);
-		},
-
-		removeItem(id: number): void {
-			this.items = this.items.filter(item => item.id !== id);
-		},
-
-		editItem(item: TodoItem): void {
-			this.items = this.items.map(todo => {
-				if (todo.id === item.id) {
-					todo.text = prompt("Edit item", todo.text);
-				}
-				return todo;
-			});
-		},
-
-		toggleCompleted(item: TodoItem): void {
-			item.completed = !item.completed;
+			await sleep(500);
+			this.isSuccess = false;
 		},
 
 	},
 
 	computed: {
+		loading(): boolean {
+			return this.$store.state.todo.loading;
+		},
 
 		isEmpty(): boolean {
 			return this.text === '' || this.isDuplicated;
 		},
 
 		completedCount(): number {
-			return this.items.filter(item => item.completed).length;
+			return this.$store.getters.completedCount;
 		},
 
 		totalCount(): number {
-			return this.items.length;
+			return this.$store.getters.totalCount;
 		}
 
 	},
 
-	created() {
+	async created() {
 		this.showWelcomeMsg = true;
-		setTimeout(() => {
-			this.showWelcomeMsg = false;
-		}, 1000);
+		await sleep(1000);
+		this.showWelcomeMsg = false;
+	},
+
+	mounted() {
+		this.$store.dispatch(ActionTypes.GET_ITEMS);
 	},
 
 	watch: {
 		text(newValue: string): void {
-			const duplicatedItem = this.items.find(item => item.text.toLowerCase() === newValue.toLowerCase());
+			const items: Todo[] = this.$store.state.todo.items;
+			const duplicatedItem = items.find(item => item.text.toLowerCase() === newValue.toLowerCase());
 			if (duplicatedItem) {
 				this.isDuplicated = true;
 			} else {
