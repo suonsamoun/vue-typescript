@@ -5,11 +5,11 @@ import {
   Module,
 } from "vuex";
 
-import { RootState } from "../..";
-import { type State, state } from "./state";
-import { Mutations, mutations } from "./mutations";
-import { Actions, actions } from "./actions";
-import { Getters, getters } from "./getters";
+import { RootState } from "@/store";
+import { type State, state } from "@/store/modules/todo/state";
+import { Mutations, mutations } from "@/store/modules/todo/mutations";
+import { Actions, actions } from "@/store/modules/todo/actions";
+import { Getters, getters } from "@/store/modules/todo/getters";
 
 export { State };
 

@@ -8,8 +8,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { TodoItem } from "../components";
-import { Todo } from "../interfaces";
+import { TodoItem } from "@/components";
+import { Todo } from "@/interfaces";
 
 export default defineComponent({
     name: "TodoList",

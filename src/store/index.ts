@@ -1,5 +1,5 @@
 import { createStore, createLogger } from "vuex";
-import { store as todo, TodoStore, State as TodoState } from "./modules/todo";
+import { store as todo, TodoStore, State as TodoState } from "@/store/modules/todo";
 
 export type RootState = {
     todo: TodoState;

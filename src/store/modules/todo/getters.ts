@@ -1,6 +1,6 @@
 import { GetterTree } from 'vuex'
-import { State } from './state'
-import { RootState } from '../..';
+import { State } from '@/store/modules/todo/state'
+import { RootState } from '@/store';
 
 export type Getters = {
     totalCount(state: State): number

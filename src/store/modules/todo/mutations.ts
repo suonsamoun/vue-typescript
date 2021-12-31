@@ -1,6 +1,6 @@
 import { MutationTree } from 'vuex';
-import { Todo } from '../../../interfaces';
-import { State } from './state';
+import { Todo } from '@/interfaces';
+import { State } from '@/store/modules/todo/state';
 
 export enum MutationTypes {
     SET_LOADING = 'SET_LOADING',

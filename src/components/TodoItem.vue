@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { MutationTypes } from "../store/modules/todo/mutations";
+import { MutationTypes } from "@/store/modules/todo/mutations";
 
 export default defineComponent({
     name: "TodoItem",

@@ -47,10 +47,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Todo } from "../interfaces";
-import { TodoList } from "../components";
-import { ActionTypes, sleep } from "../store/modules/todo/actions";
-import { MutationTypes } from "../store/modules/todo/mutations";
+import { Todo } from "@/interfaces";
+import { TodoList } from "@/components";
+import { ActionTypes, sleep } from "@/store/modules/todo/actions";
+import { MutationTypes } from "@/store/modules/todo/mutations";
 
 export default defineComponent({
 	name: "Home",

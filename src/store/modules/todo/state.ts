@@ -1,4 +1,4 @@
-import { Todo } from "../../../interfaces"
+import { Todo } from "@/interfaces"
 
 export type State = {
     loading: boolean;
