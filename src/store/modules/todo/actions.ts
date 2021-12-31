@@ -1,18 +1,18 @@
 import { ActionContext, ActionTree } from "vuex";
 import { Mutations, MutationTypes } from "./mutations";
-import { TodoState } from "./state";
+import { State } from "./state";
+import { RootState } from '../..';
 
 export enum ActionTypes {
     GET_ITEMS = 'GET_ITEMS',
 }
 
-type ActionArguments = Omit<ActionContext<TodoState, TodoState>, 'commit'> & {
+type ActionArguments = Omit<ActionContext<State, RootState>, 'commit'> & {
     commit<K extends keyof Mutations>(
         key: K,
         payload: Parameters<Mutations[K]>[1]
     ): ReturnType<Mutations[K]>
 }
-
 
 export type Actions = {
     [ActionTypes.GET_ITEMS]: (context: ActionArguments) => void;
@@ -20,7 +20,7 @@ export type Actions = {
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-export const actions: ActionTree<TodoState, TodoState> & Actions = {
+export const actions: ActionTree<State, RootState> & Actions = {
     async [ActionTypes.GET_ITEMS]({ commit }) {
         commit(MutationTypes.SET_LOADING, true)
 
@@ -37,7 +37,6 @@ export const actions: ActionTree<TodoState, TodoState> & Actions = {
         
     }
 }
-
 
 // mutations is synchronous
 // actions is asynchronous

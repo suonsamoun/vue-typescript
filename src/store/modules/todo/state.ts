@@ -1,11 +1,11 @@
 import { Todo } from "../../../interfaces"
 
-export type TodoState = {
+export type State = {
     loading: boolean;
     items: Todo[];
 }
 
-export const state: TodoState = {
+export const state: State = {
     loading: false,
     items: []
 }

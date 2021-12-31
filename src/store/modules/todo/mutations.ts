@@ -1,6 +1,6 @@
 import { MutationTree } from 'vuex';
 import { Todo } from '../../../interfaces';
-import { TodoState } from './state';
+import { State } from './state';
 
 export enum MutationTypes {
     SET_LOADING = 'SET_LOADING',
@@ -11,26 +11,26 @@ export enum MutationTypes {
     TOGGLE_COMPLETED = 'TOGGLE_COMPLETED',
 }
 
-export type Mutations<State = TodoState> = {
-    [MutationTypes.SET_LOADING]: (state: State, payload: boolean) => void;
-    [MutationTypes.CREATE_ITEM]: (state: State, payload: Todo) => void;
-    [MutationTypes.SET_ITEMS]: (state: State, payload: Todo[]) => void;
-    [MutationTypes.EDIT_ITEM]: (state: State, payload: Todo) => void;
-    [MutationTypes.DELETE_ITEM]: (state: State, payload: number) => void;
-    [MutationTypes.TOGGLE_COMPLETED]: (state: State, payload: number) => void;
+export type Mutations<S = State> = {
+    [MutationTypes.SET_LOADING]: (state: S, payload: boolean) => void;
+    [MutationTypes.CREATE_ITEM]: (state: S, payload: Todo) => void;
+    [MutationTypes.SET_ITEMS]: (state: S, payload: Todo[]) => void;
+    [MutationTypes.EDIT_ITEM]: (state: S, payload: Todo) => void;
+    [MutationTypes.DELETE_ITEM]: (state: S, payload: number) => void;
+    [MutationTypes.TOGGLE_COMPLETED]: (state: S, payload: number) => void;
 }
 
-export const mutations: MutationTree<TodoState> & Mutations = {
-    [MutationTypes.SET_LOADING](state: TodoState, payload: boolean) {
+export const mutations: MutationTree<State> & Mutations = {
+    [MutationTypes.SET_LOADING](state: State, payload: boolean) {
         state.loading = payload;
     },
-    [MutationTypes.CREATE_ITEM](state: TodoState, payload: Todo) {
+    [MutationTypes.CREATE_ITEM](state: State, payload: Todo) {
         state.items.unshift(payload);
     },
-    [MutationTypes.SET_ITEMS](state: TodoState, payload: Todo[]) {
+    [MutationTypes.SET_ITEMS](state: State, payload: Todo[]) {
         state.items = payload;
     },
-    [MutationTypes.EDIT_ITEM](state: TodoState, payload: Todo) {
+    [MutationTypes.EDIT_ITEM](state: State, payload: Todo) {
         state.items = state.items.map(item => {
             if (item.id === payload.id) {
                 item.text = prompt("Edit item", item.text);
@@ -38,10 +38,10 @@ export const mutations: MutationTree<TodoState> & Mutations = {
             return item;
         });
     },
-    [MutationTypes.DELETE_ITEM](state: TodoState, payload: number) {
+    [MutationTypes.DELETE_ITEM](state: State, payload: number) {
         state.items = state.items.filter(item => item.id !== payload);
     },
-    [MutationTypes.TOGGLE_COMPLETED](state: TodoState, payload: number) {
+    [MutationTypes.TOGGLE_COMPLETED](state: State, payload: number) {
         const index = state.items.findIndex(item => item.id === payload);
         state.items[index].completed = !state.items[index].completed;
     }
