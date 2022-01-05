@@ -15,13 +15,14 @@
 					class="mx-auto flex items-center bg-white p-2 rounded-md border-2"
 					:class="[isValid(text) ? '' : 'border-green-500']"
 				>
-					<div class="flex-grow m-1 ml-3">
+					<div class="flex-grow m-1 ml-3 relative">
 						<input
 							v-model="text"
 							class="w-full focus:outline-none"
 							type="text"
 							placeholder="Enter new item"
 						/>
+						<span class="absolute flex right-0 top-0 bottom-0">{{text.length}} / {{textLimit}}</span>
 					</div>
 					<div class="flex-shrink-0">
 						<button
@@ -46,89 +47,90 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from "vue";
 import { Todo } from "@/interfaces";
 import { TodoList } from "@/components";
 import { ActionTypes, sleep } from "@/store/modules/todo/actions";
 import { MutationTypes } from "@/store/modules/todo/mutations";
+import { useStore } from "@/store";
 
 export default defineComponent({
 	name: "Home",
 	components: {
 		TodoList
 	},
-	data() {
-		return {
-			text: '',
+
+	setup() {
+
+		const { state, dispatch, commit, getters } = useStore();
+		const textLimit = 30;
+		const text = ref("");
+		const statuses = reactive({
 			isSuccess: false,
-			showWelcomeMsg: false,
-		} as {
-			text: string;
-			isSuccess: boolean;
-			showWelcomeMsg: boolean;
-		};
-	},
-	methods: {
+			showWelcomeMsg: false
+		});
 
-		async addNewItem(): Promise<void> {
+		const { isSuccess, showWelcomeMsg } = toRefs(statuses);
 
-			if (this.isValid(this.text)) {
-				this.isSuccess = false;
+		const loading = computed(() => state.todo.loading);
+		const totalCount = computed(() => getters.totalCount);
+		const completedCount = computed(() => getters.completedCount);
+		const isValid = computed(() => getters.isValid);
+		const hasItemExist = computed(() => getters.itemExist);
+
+		const addNewItem = async (): Promise<void> => {
+			if (isValid.value(text.value)) {
+				isSuccess.value = false;
 				return;
 			}
 
 			const item: Todo = {
-				id: this.$store.state.todo.items.length + 1,
-				text: this.text,
-				completed: false,
+				id: state.todo.items.length + 1,
+				text: text.value,
+				completed: false
 			};
-		
-			this.$store.commit(MutationTypes.SET_LOADING, true);
-			this.$store.commit(MutationTypes.CREATE_ITEM, item);
 
-			this.isSuccess = true;
-			this.text = "";
+			commit(MutationTypes.SET_LOADING, true);
+			commit(MutationTypes.CREATE_ITEM, item);
+
+			isSuccess.value = true;
+			text.value = "";
 
 			await sleep(100);
-			this.$store.commit(MutationTypes.SET_LOADING, false);
+			commit(MutationTypes.SET_LOADING, false);
 
 			await sleep(500);
-			this.isSuccess = false;
-		},
+			isSuccess.value = false;
 
-	},
+		};
 
-	computed: {
-		loading(): boolean {
-			return this.$store.state.todo.loading;
-		},
+		const onCreated = async (): Promise<void> => {
+			showWelcomeMsg.value = true;
+			await sleep(1000);
+			showWelcomeMsg.value = false;
+		};
 
-		completedCount(): number {
-			return this.$store.getters.completedCount;
-		},
+		watch(text, (value) => {
+			const length = value.length;
+			if (length > 10) text.value = value.slice(0, textLimit);
+		});
 
-		totalCount(): number {
-			return this.$store.getters.totalCount;
-		},
+		onCreated();
+		onMounted(() => dispatch(ActionTypes.GET_ITEMS));
 
-		isValid() {
-			return this.$store.getters.isValid;
-		},
+		return  {
+			text,
+			textLimit,
+			loading,
+			totalCount,
+			completedCount,
+			isValid,
+			hasItemExist,
+			isSuccess,
+			showWelcomeMsg,
+			addNewItem,
+		}
 
-		hasItemExist() {
-			return this.$store.getters.itemExist;
-		},
-
-	},
-
-	async created() {
-		this.showWelcomeMsg = true;
-		await sleep(1000);
-		this.showWelcomeMsg = false;
-	},
-
-	mounted() {
-		this.$store.dispatch(ActionTypes.GET_ITEMS);
 	}
 });
 
