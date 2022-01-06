@@ -1,12 +1,16 @@
 <template>
-  <div class="p-2 text-center bg-black text-white">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-
-  <div class="text-center mt-3">
+  <Navbar />
+  <main>
     <router-view />
-  </div>
-
+  </main>
 </template>
 
+<script lang="ts">
+import { defineComponent } from "vue"
+import Navbar from "@/components/Navbar.vue";
+export default defineComponent({
+  components: {
+    Navbar,
+  }
+});
+</script>

@@ -1,8 +1,4 @@
 <template>
-	<div
-		v-show="showWelcomeMsg"
-		class="bg-green-900 text-white p-2 rounded-md"
-	>Welcome to the Todo App!</div>
 	<div class="container max-w-md mx-auto mt-4 shadow-lg p-3">
 		<h1 class="text-3xl text-center p-2 font-bold">Todo App</h1>
 		<div v-if="loading">
@@ -22,7 +18,7 @@
 							type="text"
 							placeholder="Enter new item"
 						/>
-						<span class="absolute flex right-0 top-0 bottom-0">{{text.length}} / {{textLimit}}</span>
+						<span class="absolute flex right-0 top-0 bottom-0">{{ text.length }} / {{ textLimit }}</span>
 					</div>
 					<div class="flex-shrink-0">
 						<button
@@ -35,11 +31,15 @@
 				</div>
 			</form>
 			<h5 class="text-left text-red-500 px-2" v-show="hasItemExist(text)">
-				<span>Item <strong>{{ text }}</strong> already exists!</span>
+				<span>
+					Item
+					<strong>{{ text }}</strong> already exists!
+				</span>
 			</h5>
-			<h5 class="text-left text-green-500 transition ease-in-out delay-150 px-2" v-show="isSuccess">
-				Item successfully added!
-			</h5>
+			<h5
+				class="text-left text-green-500 transition ease-in-out delay-150 px-2"
+				v-show="isSuccess"
+			>Item successfully added!</h5>
 			<h5 class="text-left text-red-500 px-2" v-show="totalCount == 0">You don't have any item!</h5>
 			<TodoList />
 		</div>
@@ -55,7 +55,7 @@ import { MutationTypes } from "@/store/modules/todo/mutations";
 import { useStore } from "@/store";
 
 export default defineComponent({
-	name: "Home",
+	name: "Todo",
 	components: {
 		TodoList
 	},
@@ -66,11 +66,10 @@ export default defineComponent({
 		const textLimit = 30;
 		const text = ref("");
 		const statuses = reactive({
-			isSuccess: false,
-			showWelcomeMsg: false
+			isSuccess: false
 		});
 
-		const { isSuccess, showWelcomeMsg } = toRefs(statuses);
+		const { isSuccess } = toRefs(statuses);
 
 		const loading = computed(() => state.todo.loading);
 		const totalCount = computed(() => getters.totalCount);
@@ -104,21 +103,14 @@ export default defineComponent({
 
 		};
 
-		const onCreated = async (): Promise<void> => {
-			showWelcomeMsg.value = true;
-			await sleep(1000);
-			showWelcomeMsg.value = false;
-		};
-
 		watch(text, (value) => {
 			const length = value.length;
 			if (length > 10) text.value = value.slice(0, textLimit);
 		});
 
-		onCreated();
 		onMounted(() => dispatch(ActionTypes.GET_ITEMS));
 
-		return  {
+		return {
 			text,
 			textLimit,
 			loading,
@@ -127,7 +119,6 @@ export default defineComponent({
 			isValid,
 			hasItemExist,
 			isSuccess,
-			showWelcomeMsg,
 			addNewItem,
 		}
 
